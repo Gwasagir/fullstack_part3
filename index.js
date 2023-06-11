@@ -35,9 +35,7 @@ const countEntries = entries => {
 
 app.get('/info', (request, response) => {
     const entries = countEntries(persons)
-    console.log(request)
-    const requestDate = response.Date
-    console.log(requestDate)
+    const requestDate = Date(8.64e15).toString()
     response.send(
         '<p>Phonebook has info for '+entries+' people</p><p> '+
         requestDate + '</p>')
