@@ -33,6 +33,10 @@ const countEntries = entries => {
     return personcount
 }
 
+app.get('/', (request, response) => {
+  response.send('<h1>Welcome to phonebook</h1>')
+})
+
 app.get('/info', (request, response) => {
     const entries = countEntries(persons)
     const requestDate = Date(8.64e15).toString()
@@ -43,6 +47,63 @@ app.get('/info', (request, response) => {
   
 app.get('/api/persons', (request, response) => {
     response.json(persons)
+  })
+
+app.get('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    const note = persons.find(note => note.id === id)
+  
+    if (note) {
+      response.json(note)
+    } else {
+      response.status(404).end()
+    }
+  })
+
+  app.delete('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    notes = persons.filter(note => note.id !== id)
+  
+    response.status(204).end()
+  })
+
+const generateId = () => {
+    return Math.floor(Math.random() * 100000) + 1; 
+  }
+
+const checkDuplicates = name => {
+  for (var x = 0; x < persons.length; x++) {
+    if (JSON.stringify(persons[x].name)===JSON.stringify(name)){
+      return true
+    }
+  return false
+  }
+}
+
+
+app.post('/api/persons', (request, response) => {
+    const body = request.body
+    console.log("HTML POST const request.body => ",body)
+    if (!body.name || !body.number) {
+      return response.status(400).json({ 
+        error: 'name or number missing' 
+      })
+    }
+
+    if (checkDuplicates(body.name)) {
+      return response.status(418).json({ 
+        error: 'name must be unique' 
+      })    }
+
+    const person = {
+      name: body.name,
+      number: body.number,
+      id: generateId(),
+    }
+  
+    persons = persons.concat(person)
+  
+    response.json(person)
   })
 
 const PORT = 3001
