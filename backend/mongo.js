@@ -1,7 +1,3 @@
-// nikokeurulainen
-// Jnwx9qiLbWjVvtWf
-
-// mongodb+srv://nikokeurulainen:Jnwx9qiLbWjVvtWf@phonecluster.scckjev.mongodb.net/?retryWrites=true&w=majority
 
 const mongoose = require('mongoose')
 
