@@ -10,7 +10,6 @@ app.use(cors())
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :post'));
 app.use(express.static('build'))
 
-app.use(express.json())
 
 let persons = [
     { 
@@ -34,6 +33,7 @@ let persons = [
       "number": "39-23-6423122"
     }
 ]
+app.use(express.json())
 
 const countEntries = entries => {
     const personcount = entries.reduce(function(sum){
