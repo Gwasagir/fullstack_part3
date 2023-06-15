@@ -13,17 +13,10 @@ app.use(express.json())
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :post'));
 app.use(express.static('build'))
 
-const countEntries = entries => {
-    const personcount = entries.reduce(function(sum){
-        return sum + 1
-    },0)
-    return personcount
-}
 
 app.get('/', (request, response) => {
   response.send('<h1>Welcome to phonebook</h1>')
 })
-
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
@@ -31,31 +24,44 @@ app.get('/api/persons', (request, response) => {
   })
   })
 
-  app.post('/api/persons', (request, response) => {
-    const body = request.body
+app.post('/api/persons', (request, response) => {
+  const body = request.body
 
-    if (!body.name || !body.number) {
-      return response.status(400).json({ 
-        error: 'name or number missing' 
-      })
-    }
-    // if (checkDuplicates(body.name)) {
-    //   return response.status(418).json({ 
-    //     error: 'name must be unique' 
-    //   })    }
-    const person = new Person({
-      name: body.name,
-      number: body.number,
+  if (!body.name || !body.number) {
+    return response.status(400).json({ 
+      error: 'name or number missing' 
     })
-  
-    person.save().then(savedPerson => {
-      response.json(savedPerson)
-    })
+  }
+  // if (checkDuplicates(body.name)) {
+  //   return response.status(418).json({ 
+  //     error: 'name must be unique' 
+  //   })    }
+  const person = new Person({
+    name: body.name,
+    number: body.number,
   })
 
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
 
 
 // legacy event handlers here
+const countEntries = entries => {
+  const personcount = entries.reduce(function(sum){
+      return sum + 1
+  },0)
+  return personcount
+}
 
   app.get('/info', (request, response) => {
     const entries = countEntries([1,2,3]) // DOESNT WORK
@@ -76,12 +82,7 @@ app.get('/api/persons/:id', (request, response) => {
     }
   })
 
-  app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    notes = persons.filter(note => note.id !== id)
-  
-    response.status(204).end()
-  })
+
 
 const generateId = () => {
     return Math.floor(Math.random() * 100000) + 1; 
