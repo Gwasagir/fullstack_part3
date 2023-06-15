@@ -64,12 +64,14 @@ const App = () => {
     personService.create({
       name: newName,
       number: newNumber
-    }).then(createdPerson => {
+    })
+    .then(createdPerson => {
       setPersons(persons.concat(createdPerson))
-
       notifyWith(`${createdPerson.name} added!`)
-
       cleanForm()
+    })
+    .catch(error => {
+      notifyWith( error.response.data.error , 'error' )
     })
   }
 
