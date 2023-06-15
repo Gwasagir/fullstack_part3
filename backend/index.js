@@ -8,11 +8,14 @@ const Person = require('./models/person')
 
 morgan.token('post', (req, res) => JSON.stringify(req.body));
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
 app.use(cors())
 app.use(express.json())
 app.use(morgan(':method :url :status :response-time ms - :res[content-length] :post'));
 app.use(express.static('build'))
-
 
 app.get('/', (request, response) => {
   response.send('<h1>Welcome to phonebook</h1>')
@@ -46,6 +49,20 @@ app.post('/api/persons', (request, response) => {
   })
 })
 
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+
+    .catch(error => next(error))
+})
+
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
@@ -54,49 +71,18 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
 
-// legacy event handlers here
-const countEntries = entries => {
-  const personcount = entries.reduce(function(sum){
-      return sum + 1
-  },0)
-  return personcount
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
 }
 
-  app.get('/info', (request, response) => {
-    const entries = countEntries([1,2,3]) // DOESNT WORK
-    const requestDate = Date(8.64e15).toString()
-    response.send(
-        '<p>Phonebook has info for '+entries+' people</p><p> '+
-        requestDate + '</p>')
-  })
-
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const note = persons.find(note => note.id === id)
-  
-    if (note) {
-      response.json(note)
-    } else {
-      response.status(404).end()
-    }
-  })
-
-
-
-const generateId = () => {
-    return Math.floor(Math.random() * 100000) + 1; 
-  }
-
-const checkDuplicates = name => {
-  for (var x = 0; x < persons.length; x++) {
-    if (JSON.stringify(persons[x].name)===JSON.stringify(name)){
-      return true
-    }
-  return false
-  }
-}
-
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
