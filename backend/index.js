@@ -24,24 +24,46 @@ app.get('/', (request, response) => {
   response.send('<h1>Welcome to phonebook</h1>')
 })
 
-app.get('/info', (request, response) => {
-    const entries = countEntries([1,2,3]) // DOESNT WORK
-    const requestDate = Date(8.64e15).toString()
-    response.send(
-        '<p>Phonebook has info for '+entries+' people</p><p> '+
-        requestDate + '</p>')
-  })
-  
+
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
   })
 
+  app.post('/api/persons', (request, response) => {
+    const body = request.body
+
+    if (!body.name || !body.number) {
+      return response.status(400).json({ 
+        error: 'name or number missing' 
+      })
+    }
+    // if (checkDuplicates(body.name)) {
+    //   return response.status(418).json({ 
+    //     error: 'name must be unique' 
+    //   })    }
+    const person = new Person({
+      name: body.name,
+      number: body.number,
+    })
+  
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
+  })
 
 
 
+// legacy event handlers here
 
+  app.get('/info', (request, response) => {
+    const entries = countEntries([1,2,3]) // DOESNT WORK
+    const requestDate = Date(8.64e15).toString()
+    response.send(
+        '<p>Phonebook has info for '+entries+' people</p><p> '+
+        requestDate + '</p>')
+  })
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
@@ -74,30 +96,6 @@ const checkDuplicates = name => {
   }
 }
 
-app.post('/api/persons', (request, response) => {
-    const body = request.body
-    console.log("HTML POST const request.body => ",body)
-    if (!body.name || !body.number) {
-      return response.status(400).json({ 
-        error: 'name or number missing' 
-      })
-    }
-
-    if (checkDuplicates(body.name)) {
-      return response.status(418).json({ 
-        error: 'name must be unique' 
-      })    }
-
-    const person = {
-      name: body.name,
-      number: body.number,
-      id: generateId(),
-    }
-  
-    persons = persons.concat(person)
-  
-    response.json(person)
-  })
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
