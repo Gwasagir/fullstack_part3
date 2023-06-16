@@ -23,20 +23,20 @@ const noteSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', noteSchema)
 
 const person = new Person({
-    name: process.argv[3],
-    number: process.argv[4],
+  name: process.argv[3],
+  number: process.argv[4],
 })
 
 // event handler to save the object. Result of the save is in result parameter
-if (person.name) {person.save().then(result => {
-    console.log("entry saved")
-    mongoose.connection.close()
-    })}
-    // if no name is given, list all Person objects from the database
+if (person.name) {person.save().then(() => {
+  console.log('entry saved')
+  mongoose.connection.close()
+})}
+// if no name is given, list all Person objects from the database
 else {Person.find({}).then(result => {
-    console.log('phonebook:')
-    result.forEach(person => {
-        console.log(person)
-    })
-    mongoose.connection.close()
-  })}
+  console.log('phonebook:')
+  result.forEach(person => {
+    console.log(person)
+  })
+  mongoose.connection.close()
+})}
