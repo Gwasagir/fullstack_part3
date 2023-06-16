@@ -1,7 +1,7 @@
 # Fullstack Open PART 3
 ## Niko Keurulainen submissions 
 
-### Exercise 3.10 online application
+### Phonebook online application at fly.io
 https://purple-wind-9215.fly.dev/
 
 
@@ -9,7 +9,6 @@ https://purple-wind-9215.fly.dev/
 ### Repository tree
 <pre>
 part3
-  phonebook
     backend
     frontend
 </pre>
